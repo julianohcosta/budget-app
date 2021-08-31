@@ -29,6 +29,7 @@ class DataBase {
         for(let i=0; i<=totalItens;i++){
             let despesa = JSON.parse(localStorage.getItem(String(i)));
             if(despesa != null){
+                despesa.id = i
                 despesas.push(despesa)
             }
         }
@@ -59,6 +60,8 @@ class DataBase {
         }
         return despesas
     }
+
+    static removeExpense(id) {localStorage.removeItem(id);}
 }
 
 class Despesa {
@@ -143,7 +146,7 @@ function cadastrarDespesa() {
 
 function loadExpensesList(despesas) {
 
-    if (despesas == null){
+    if (despesas === undefined){
         despesas = DataBase.loadAllExpenses();
     }
 
@@ -175,6 +178,17 @@ function loadExpensesList(despesas) {
         linha.insertCell(1).innerHTML = d.tipo; // Tipo
         linha.insertCell(2).innerHTML = d.descricao; // Descrição
         linha.insertCell(3).innerHTML = d.valor; // Valor
+
+        /** Cria botão que permite excluir uma despesa */
+        let btn = document.createElement("button");
+        btn.className = "btn btn-danger";
+        btn.innerHTML = '<i class="fas fa-times"></i>';
+        btn.id = `id_despesa_${d.id}`;
+        btn.onclick = function() {
+            DataBase.removeExpense(this.id.replace("id_despesa_", ""));
+            window.location.reload();
+        };
+        linha.insertCell(4).append(btn);
     });
 }
 
@@ -189,5 +203,6 @@ function findExpense() {
     let valor = document.getElementById('valor').value;
 
     let despesa = new Despesa(ano, mes, dia, tipo, descricao, valor);
+    document.getElementById("listaDespesa").innerHTML = '';
     loadExpensesList(DataBase.searchExpense(despesa));
 }
